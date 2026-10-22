@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="Juego para aprender a contar y operar con dados y tapitas reales." />
+    <!--
+      Política de seguridad (CSP): solo se cargan archivos de este mismo sitio y
+      ningún script o estilo escrito dentro del HTML. Va aquí además de en _headers
+      para que también funcione en GitHub Pages, que no permite cabeceras propias.
+      Explicación de cada directiva: SECURITY.md.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="theme-color" content="#ffa23a" />
+    <title>Matemáticas con Dados</title>
+
+    <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="icons/icon-180.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+
+    <!-- Letra redondeada, servida desde este sitio: no se envía nada a terceros. -->
+    <link rel="preload" href="fonts/fredoka-latin-v17.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="css/styles.css" />
+
+    <!--
+      modulepreload: el navegador descarga todos los módulos a la vez, en vez de
+      descubrirlos de a uno (main → game → rules → spanish). Si agregas un módulo
+      a js/, agrégalo también aquí y en sw.js.
+    -->
+    <link rel="modulepreload" href="js/game.js" />
+    <link rel="modulepreload" href="js/render.js" />
+    <link rel="modulepreload" href="js/rules.js" />
+    <link rel="modulepreload" href="js/config.js" />
+    <link rel="modulepreload" href="js/spanish.js" />
+    <link rel="modulepreload" href="js/audio.js" />
+    <link rel="modulepreload" href="js/storage.js" />
+    <link rel="modulepreload" href="js/settings-panel.js" />
+    <link rel="modulepreload" href="js/icons.js" />
+    <link rel="modulepreload" href="js/mascot.js" />
+    <link rel="modulepreload" href="js/dom.js" />
+    <!-- type="module" permite usar import/export. Se ejecuta cuando la página ya cargó. -->
+    <script type="module" src="js/main.js"></script>
+  </head>
+  <body>
+    <!-- Si este mensaje queda visible, el JavaScript no cargó (ver README: "Cómo abrirlo"). -->
+    <div id="boot-message" class="boot-message">
+      <p>Cargando…</p>
+      <p>
+        Si este mensaje no desaparece, probablemente abriste el archivo con doble clic. Así el navegador no deja cargar
+        el juego. Abre una terminal en la carpeta del juego, escribe <code>npm start</code> y entra a
+        <code>http://localhost:3000</code>.
+      </p>
+    </div>
+
+    <!-- Colinas del fondo: toman el color de la operación (variable --hills). -->
+    <svg class="hills" viewBox="0 0 400 120" preserveAspectRatio="none" aria-hidden="true">
+      <path class="hills__back" d="M0 55 C70 15 150 25 215 50 S335 85 400 45 V120 H0Z" />
+      <path d="M0 85 C70 58 150 68 210 88 S330 110 400 78 V120 H0Z" />
+    </svg>
+
+    <main class="app">
+      <!-- ================= INICIO ================= -->
+      <section id="screen-home" class="screen" aria-labelledby="home-title" hidden>
+        <header class="home-header">
+          <h1 id="home-title" class="logo" tabindex="-1">Matemáticas <span>con</span>&nbsp;Dados</h1>
+          <button type="button" class="icon-button" data-action="open-settings" aria-label="Ajustes para adultos">
+            <span data-icon="settings"></span>
+          </button>
+        </header>
+
+        <div class="hero">
+          <div id="home-mascot" class="hero__mascot"></div>
+          <p class="speech-bubble">¡Hola! ¿Jugamos?</p>
+        </div>
+
+        <div id="level-picker" class="level-picker" role="group" aria-label="Nivel"></div>
+        <div id="operation-tiles" class="operation-tiles"></div>
+      </section>
+
+      <!-- ================= JUEGO ================= -->
+      <section id="screen-game" class="screen" aria-label="Juego" hidden>
+        <header class="top-bar">
+          <div id="game-mascot" class="avatar"></div>
+          <div id="progress" class="progress" role="progressbar" aria-label="Rondas" aria-valuemin="0">
+            <div id="progress-fill" class="progress__fill"></div>
+            <span id="progress-text" class="progress__text" aria-hidden="true"></span>
+          </div>
+          <button type="button" class="icon-button" data-action="open-settings" aria-label="Ajustes para adultos">
+            <span data-icon="settings"></span>
+          </button>
+        </header>
+
+        <p id="operation-chip" class="operation-chip"></p>
+
+        <!-- El nombre accesible incluye el texto visible de la pregunta (WCAG 2.5.3). -->
+        <button type="button" id="prompt" class="prompt" data-action="repeat-prompt">
+          <span class="prompt__icon" data-icon="volume-2"></span>
+          <span class="visually-hidden">Repetir la pregunta:</span>
+          <span id="prompt-text"></span>
+        </button>
+
+        <!--
+          Lo que anuncia el lector de pantalla: la pregunta de cada ronda y el
+          resultado al acertar. Es un solo texto corto, no la mesa entera.
+        -->
+        <p id="game-status" class="visually-hidden" role="status" aria-live="polite"></p>
+
+        <!-- En pantallas anchas: dados y mesa a la izquierda, respuestas a la derecha. -->
+        <div class="game-layout">
+          <div class="game-layout__main">
+            <div class="card">
+              <div id="dice-row" class="dice-row"></div>
+            </div>
+            <div class="wood-table">
+              <div id="table-content" class="table"></div>
+            </div>
+          </div>
+
+          <div class="game-layout__side">
+            <div id="answers" class="answers" role="group" aria-label="Respuestas"></div>
+            <details class="adult-guide">
+              <summary>
+                <span data-icon="info"></span>
+                <span>Para el adulto</span>
+                <span class="adult-guide__chevron" data-icon="chevron-down"></span>
+              </summary>
+              <ul id="adult-tips"></ul>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= FINAL ================= -->
+      <section id="screen-end" class="screen screen--end" aria-labelledby="end-title" hidden>
+        <div id="end-mascot" class="end__mascot"></div>
+        <div id="end-stars" class="end__stars" aria-hidden="true"></div>
+        <h2 id="end-title" class="end__title" tabindex="-1">Terminamos</h2>
+        <p class="end__text"><span data-icon="package"></span> Ahora guardamos las tapitas juntos.</p>
+        <!-- inert: mientras los botones están ocultos, tampoco se pueden enfocar con Tab. -->
+        <div id="end-buttons" class="end__buttons" inert>
+          <button type="button" class="button" data-action="go-home"><span data-icon="house"></span> Inicio</button>
+          <button type="button" class="button button--primary" data-action="play-again">
+            <span data-icon="rotate-ccw"></span> Otra vez
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <!-- ================= AJUSTES ================= -->
+    <dialog id="settings-dialog" class="settings" aria-labelledby="settings-title">
+      <div class="settings__header">
+        <h2 id="settings-title">Ajustes para adultos</h2>
+      </div>
+      <div id="settings-body" class="settings__body"></div>
+      <div class="settings__footer">
+        <button type="button" id="settings-home" class="button button--ghost">Inicio</button>
+        <button type="button" id="settings-cancel" class="button button--ghost">Cancelar</button>
+        <button type="button" id="settings-save" class="button button--primary">Guardar y empezar</button>
+      </div>
+    </dialog>
+  </body>
+</html>

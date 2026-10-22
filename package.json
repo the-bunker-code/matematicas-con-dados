@@ -1,0 +1,37 @@
+{
+  "name": "matematicas-con-dados",
+  "version": "1.0.0",
+  "description": "Juego para aprender a contar y operar con dados y tapitas reales. HTML, CSS y JavaScript sin framework.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node scripts/serve.js",
+    "test": "node --test",
+    "test:coverage": "node --test --experimental-test-coverage --test-coverage-include=js/rules.js --test-coverage-include=js/storage.js --test-coverage-include=js/spanish.js --test-coverage-lines=90 --test-coverage-branches=90 --test-coverage-functions=90",
+    "test:e2e": "playwright test",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc -p jsconfig.json",
+    "validate:html": "html-validate index.html",
+    "check:syntax": "node scripts/check-syntax.js",
+    "icons": "node scripts/make-icons.js",
+    "check": "npm run lint && npm run format:check && npm run typecheck && npm run check:syntax && npm run validate:html && npm run test:coverage && npm run test:e2e"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT",
+  "author": "Enrique Lazo Bello (ENLABE) and The Bunker Code",
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^24.19.2",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.13.0",
+    "html-validate": "^11.17.0",
+    "prettier": "^3.9.10",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,19 @@
+# Dependencias de desarrollo (no se publican)
+node_modules/
+
+# Resultados de pruebas y cobertura
+playwright-report/
+test-results/
+coverage/
+.lighthouseci/
+
+# Variables de entorno y secretos: este proyecto no usa ninguno.
+.env
+.env.*
+
+# Sistema operativo y editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
