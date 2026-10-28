@@ -15,7 +15,7 @@ import { fileURLToPath } from 'node:url';
 import { gzipSync } from 'node:zlib';
 
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
-const PORT = Number(process.env.PORT ?? 3000);
+const PORT = Number(process.env.PORT ?? 3002);
 
 /** @type {Record<string, string>} */
 const CONTENT_TYPES = {

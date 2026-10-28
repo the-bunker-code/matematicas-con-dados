@@ -24,7 +24,7 @@
 :root {
   /* Tema de la operación actual. JavaScript los cambia (render.js → applyTheme). */
   --theme-main: #ffa23a;
-  --theme-dark: #e07f12;
+  --theme-dark: #af630e; /* sombra y texto sobre blanco (>= 4,5:1) */
   --theme-light: #fff0d6;
   --sky-top: #ffe7b8;
   --sky-bottom: #fff8ea;
@@ -38,14 +38,18 @@
   --muted: #5c5f6e;
   --line: #ece7dc;
   --white: #ffffff;
+  --edge: #d9d2c2; /* sombra de relieve bajo botones y tarjetas blancas */
+  --edge-soft: #e6dcc6;
   --gold: #ffc21a;
+  --gold-dark: #e0a400;
   --correct-bg: #e4f8dc;
   --correct-shadow: #9fd88a;
   --orange: #ffa23a;
   --orange-dark: #e07f12;
-  --blue: #4f8ef7;
-  --blue-dark: #2f6fd8;
-  --blue-darker: #1f56b3;
+  /* Botón principal: este azul da 4,8:1 con texto blanco (WCAG AA). */
+  --blue: #2f6fd8;
+  --blue-dark: #1f55b0;
+  --focus: #1e3a8a; /* anillo de foco: >= 7:1 sobre todos los cielos */
   --wood-light: #f3c98d;
   --wood-dark: #e9b673;
   --wood-edge: #c98b45;
@@ -61,8 +65,12 @@
 
   /* "Botón grueso": la sombra sólida de abajo da sensación de relieve. */
   --press-depth: 6px;
+  --press-travel: 3px;
+  --card-shadow: 0 6px 0 rgb(0 0 0 / 5%), 0 10px 24px rgb(0 0 0 / 6%);
+  --touch-min: 44px;
 
-  --font: 'Fredoka', ui-rounded, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --font-kid: 'Fredoka', ui-rounded, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --font-adult: system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
 }
 
 /* 2. BASE ================================================================== */
@@ -95,7 +103,7 @@ body {
 
 body {
   min-height: 100dvh;
-  font-family: var(--font);
+  font-family: var(--font-kid);
   color: var(--ink);
   background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 70%) fixed;
   /* Sin transition: los degradados no se animan, así que no tenía efecto. */
@@ -204,23 +212,23 @@ button {
   color: var(--ink);
   font-size: 18px;
   font-weight: 600;
-  box-shadow: 0 5px 0 #d9d2c2;
+  box-shadow: 0 5px 0 var(--edge);
 }
 
 .button:active {
   transform: translateY(3px);
-  box-shadow: 0 2px 0 #d9d2c2;
+  box-shadow: 0 2px 0 var(--edge);
 }
 
 .button--primary {
-  /* --blue-dark y no --blue: el texto blanco necesita contraste 4,5:1. */
-  background: var(--blue-dark);
+  /* Texto blanco sobre --blue: 4,8:1 (AA). */
+  background: var(--blue);
   color: var(--white);
-  box-shadow: 0 5px 0 var(--blue-darker);
+  box-shadow: 0 5px 0 var(--blue-dark);
 }
 
 .button--primary:active {
-  box-shadow: 0 2px 0 var(--blue-darker);
+  box-shadow: 0 2px 0 var(--blue-dark);
 }
 
 .button--ghost {
@@ -255,14 +263,12 @@ button {
   padding: 18px 14px;
   border-radius: var(--radius-large);
   background: var(--white);
-  box-shadow:
-    0 6px 0 rgb(0 0 0 / 5%),
-    0 10px 24px rgb(0 0 0 / 6%);
+  box-shadow: var(--card-shadow);
 }
 
 /* Contorno visible al navegar con teclado (no aparece al tocar con el dedo). */
 :focus-visible {
-  outline: 4px solid var(--blue);
+  outline: 4px solid var(--focus);
   outline-offset: 3px;
 }
 
@@ -340,7 +346,7 @@ button {
   border-radius: 18px;
   background: var(--white);
   color: var(--muted);
-  box-shadow: 0 4px 0 #e6dcc6;
+  box-shadow: 0 4px 0 var(--edge-soft);
 }
 
 .level-button__name {
@@ -810,13 +816,13 @@ button {
   background: var(--white);
   color: var(--answer-color);
   box-shadow:
-    0 7px 0 #d9d2c2,
+    0 7px 0 var(--edge),
     inset 0 -4px 0 #f3eee4;
 }
 
 .answer:active {
   transform: translateY(4px);
-  box-shadow: 0 3px 0 #d9d2c2;
+  box-shadow: 0 3px 0 var(--edge);
 }
 
 /* aria-disabled y no disabled: un botón disabled pierde el foco del teclado
@@ -1106,7 +1112,7 @@ button {
 }
 
 .pill input:focus-visible + span {
-  outline: 3px solid var(--blue);
+  outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
 
